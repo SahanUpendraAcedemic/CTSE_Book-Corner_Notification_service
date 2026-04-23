@@ -35,6 +35,23 @@ Build:
 Run:
 - `docker run --env-file .env -p 3004:3004 book-corner-notification-service`
 
+## AWS ECS Deployment
+This repository includes a GitHub Actions workflow at `../.github/workflows/deploy-ecs.yml` for building the Docker image, pushing it to Amazon ECR, and updating an ECS/Fargate service.
+
+Required GitHub secrets:
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `AWS_REGION`
+- `ECR_REPOSITORY`
+- `ECS_CLUSTER`
+- `ECS_SERVICE`
+- `CONTAINER_NAME`
+
+Task definition template:
+- `../.aws/task-definition.json`
+
+Replace the placeholder IAM role ARNs and AWS account ID in the task definition before deploying.
+
 ## Producer Integration Contract
 Send event payload to `POST /api/events`:
 
