@@ -18,10 +18,27 @@ jest.mock("../src/services/notificationService", () => ({
 const app = require("../src/app");
 
 describe("notification-service", () => {
+  test("GET / should return service status message", async () => {
+    const res = await request(app).get("/");
+    expect(res.status).toBe(200);
+    expect(res.body.service).toBe("notification-service");
+    expect(res.body.health).toBe("/health");
+  });
+
   test("GET /health should return ok", async () => {
     const res = await request(app).get("/health");
     expect(res.status).toBe(200);
     expect(res.body.status).toBe("ok");
+  });
+
+  test("should allow browser requests when ALLOWED_ORIGINS is wildcard", async () => {
+    const res = await request(app)
+      .get("/health")
+      .set("Origin", "https://example.com");
+
+    expect(res.headers["access-control-allow-origin"]).toBe(
+      "https://example.com",
+    );
   });
 
   test("POST /api/events should reject when token missing", async () => {

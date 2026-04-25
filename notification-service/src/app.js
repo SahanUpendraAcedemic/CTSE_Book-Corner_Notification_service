@@ -15,26 +15,37 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
   .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
+const allowAllOrigins = allowedOrigins.includes("*");
 
 app.use(helmet());
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (
-        !origin ||
-        allowedOrigins.length === 0 ||
-        allowedOrigins.includes(origin)
-      ) {
-        return callback(null, true);
-      }
-      return callback(new Error("Origin not allowed by CORS"));
-    },
+    origin: allowAllOrigins
+      ? "*"
+      : (origin, callback) => {
+          if (
+            !origin ||
+            allowedOrigins.length === 0 ||
+            allowedOrigins.includes(origin)
+          ) {
+            return callback(null, true);
+          }
+          return callback(new Error("Origin not allowed by CORS"));
+        },
   }),
 );
 
 app.use(express.json({ limit: "100kb" }));
 app.use(morgan("combined"));
 app.use(requestId);
+
+app.get("/", (req, res) => {
+  res.status(200).json({
+    service: "notification-service",
+    message: "Notification service is running",
+    health: "/health",
+  });
+});
 
 app.get("/health", (req, res) => {
   res.status(200).json({
